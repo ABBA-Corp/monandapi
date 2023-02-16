@@ -135,5 +135,6 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
-static/
+staticfiles/
 files/
+.idea/
