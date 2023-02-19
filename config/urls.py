@@ -7,11 +7,13 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
     SpectacularJSONAPIView
 
 from monand.customer import urls
+from monand.store.views import SubCategoryView
 from .api import router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('subcategories', SubCategoryView.as_view(), name='subcategories'),
     path('auth/', include(urls)),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(

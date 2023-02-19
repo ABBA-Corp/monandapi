@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status
-from rest_framework import viewsets, filters
+
+from rest_framework import viewsets, filters, status, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -276,3 +276,9 @@ class CardDeleteView(viewsets.ModelViewSet):
             for card in cards:
                 card.delete()
             return Response({"status": "deleted"})
+
+
+class SubCategoryView(generics.ListAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+    filterset_fields = ['category_id']
