@@ -207,7 +207,6 @@ MEDIA_ROOT = str(APPS_DIR / "media")
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = [
@@ -258,8 +257,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
     "SERVERS": [
-        {"url": "https://mtour.kz", "description": "Production server"},
-        {"url": "https://dev.mtour.kz", "description": "Pre-release server"},
+        {"url": "https://monand.abba.uz", "description": "Production server"},
         {"url": "http://127.0.0.1:8000", "description": "Local Development server"},
     ],
     'SERVE_INCLUDE_SCHEMA': False,

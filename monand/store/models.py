@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User as Customer
+from smart_selects.db_fields import GroupedForeignKey
 
 class Category(models.Model):
     name_uz = models.CharField(max_length=200, null=True, blank=True)
@@ -17,6 +18,20 @@ class Category(models.Model):
         return self.name_uz
     
 
+class SubCategory(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)
+    name_uz = models.CharField(max_length=200, null=True, blank=True)
+    name_ru = models.CharField(max_length=200, null=True, blank=True)
+    name_en = models.CharField(max_length=200, null=True, blank=True)
+    description_uz = models.TextField(max_length=2000, null=True, blank=True)
+    description_ru = models.TextField(max_length=2000, null=True, blank=True)
+    description_en = models.TextField(max_length=2000, null=True, blank=True)
+    icon = models.ImageField(null=True)
+    image1 = models.ImageField(null=True, blank=True)
+    image2 = models.ImageField(null=True, blank=True)
+    image3 = models.ImageField(null=True, blank=True)
+
+
 class Product(models.Model):
     name_uz = models.CharField(max_length=200, null=True, blank=True)
     name_ru = models.CharField(max_length=200, null=True, blank=True)
@@ -25,6 +40,7 @@ class Product(models.Model):
     description_ru = models.TextField(max_length=2000, null=True, blank=True)
     description_en = models.TextField(max_length=2000, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    subcategory = GroupedForeignKey(SubCategory, 'category', null=True)
     product_code = models.CharField(max_length=50, null=True, blank=True)
     image = models.ImageField(null=True, blank=True)
     image1 = models.ImageField(null=True, blank=True)
@@ -44,7 +60,7 @@ class Order(models.Model):
     summa = models.IntegerField(default=0)
     
     def __str__(self):
-        return f"{self.customer.name} {self.date}"
+        return f"{self.customer} {self.date}"
 
 
 class OrderDetail(models.Model):

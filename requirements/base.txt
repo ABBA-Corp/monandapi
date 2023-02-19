@@ -26,3 +26,4 @@ redis==4.3.4  # https://github.com/redis/redis-py
 celery==5.2.7  # pyup: < 6.0  # https://github.com/celery/celery
 django-celery-beat==2.4.0  # https://github.com/celery/django-celery-beat
 django-redis==5.2.0  # https://github.com/jazzband/django-redis
+django-smart-selects==1.6.0

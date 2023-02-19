@@ -1,15 +1,14 @@
-from django.shortcuts import render
+from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework import viewsets, filters
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from monand.customer.models import UserInfo
-from .serializers import *
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.contrib.auth.models import User
-from rest_framework.pagination import PageNumberPagination
 from .paginators import CustomPagination
+from .serializers import *
 
 
 class StandardPagination(PageNumberPagination):
@@ -21,27 +20,27 @@ class StandardPagination(PageNumberPagination):
 class CategoryView(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    
+
 
 class ProductView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['$name_uz', '$name_uz', '$name_uz']
+    filterset_fields = ["top", "category_id", "subcategory_id",]
 
-    
 
 class ProductByCategory(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
+
     def retrieve(self, request, *args, **kwargs):
-        id  = kwargs['pk']
+        id = kwargs['pk']
         products = self.queryset.filter(category_id=id).all()
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
 
 class OrderView(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -53,32 +52,32 @@ class OrderByCustomerView(viewsets.ReadOnlyModelViewSet):
     serializer_class = OrderSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        id  = kwargs['pk']
+        id = kwargs['pk']
         orders = self.queryset.filter(customer_id=id).all()
         serializer = self.get_serializer(orders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
+
 class OrderDetailView(viewsets.ModelViewSet):
     queryset = OrderDetail.objects.all()
     serializer_class = OrderDetailSerializer
-    
+
 
 class DetailsByOrderView(viewsets.ReadOnlyModelViewSet):
     queryset = OrderDetail.objects.all()
     serializer_class = OrderDetailSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        id  = kwargs['pk']
+        id = kwargs['pk']
         details = self.queryset.filter(order_id=id).all()
         serializer = self.get_serializer(details, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-   
+
 class OrderHistory(viewsets.ReadOnlyModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    
+
     def retrieve(self, request, *args, **kwargs):
         print(kwargs)
         user_id = kwargs['pk']
@@ -106,25 +105,25 @@ class OrderHistory(viewsets.ReadOnlyModelViewSet):
             }
             history.append(element)
         # serializer = self.get_serializer(history, many=True)
-        return Response({"history": history}, status=status.HTTP_200_OK) 
+        return Response({"history": history}, status=status.HTTP_200_OK)
 
 
 class CardView(viewsets.ModelViewSet):
     queryset = CardObject.objects.all()
     serializer_class = CardObjectSerializer
-    
+
     def retrieve(self, request, *args, **kwargs):
         user_id = request.GET['ui']
         product_id = kwargs['pk']
         cards = CardObject.objects.filter(customer_id=user_id, id=product_id).all()
         if len(cards) == 0:
-            return Response({"status":"Not Found"} ,status=status.HTTP_404_NOT_FOUND)
+            return Response({"status": "Not Found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             for card in cards:
                 card.delete()
-            return Response({"status":"deleted"})
-      
-        
+            return Response({"status": "deleted"})
+
+
 class CardByCustomer(viewsets.ReadOnlyModelViewSet):
     queryset = CardObject.objects.all()
     serializer_class = CardObjectSerializer
@@ -154,10 +153,10 @@ class CardByCustomer(viewsets.ReadOnlyModelViewSet):
 class LikeView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
+
     def create(self, request, *args, **kwargs):
         data = request.data["likes"]
-        if data != []:
+        if data:
             products = []
             for i in data:
                 product = Product.objects.get(id=i)
@@ -166,14 +165,14 @@ class LikeView(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"data": "not null required"})
- 
- 
+
+
 class LikeByCustomer(viewsets.ReadOnlyModelViewSet):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
-    
+
     def list(self, request, *args, **kwargs):
-        jwt_object = JWTAuthentication() 
+        jwt_object = JWTAuthentication()
         validated_token = jwt_object.get_validated_token(request.headers['token'])
         user = jwt_object.get_user(validated_token)
         user = User.objects.filter(id=user.id).first()
@@ -190,7 +189,7 @@ class ClearCard(viewsets.ReadOnlyModelViewSet):
         customer_id = kwargs['pk']
         objects = CardObject.objects.filter(customer_id=customer_id).all()
         for object in objects:
-            object.delete()        
+            object.delete()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -199,12 +198,12 @@ class AddOrder(viewsets.ReadOnlyModelViewSet):
     serializer_class = CardObjectSerializer
 
     def list(self, request, *args, **kwargs):
-        jwt_object = JWTAuthentication() 
+        jwt_object = JWTAuthentication()
         validated_token = jwt_object.get_validated_token(request.headers['token'])
         user = jwt_object.get_user(validated_token)
         user = User.objects.filter(id=user.id).first()
         # customer = Customer.objects.get(id=user_id)
-        objects =  CardObject.objects.filter(customer_id=user.id).all()
+        objects = CardObject.objects.filter(customer_id=user.id).all()
         order = Order.objects.create(customer=user, summa=0)
         order.save()
         summa = 0
@@ -238,7 +237,7 @@ class CardsUiView(viewsets.ModelViewSet):
             return Response({'status': 'Success'}, status=status.HTTP_200_OK)
         except:
             pass
-        return Response({'status':'Error'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'status': 'Error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CardsUiPaymiView(viewsets.ModelViewSet):
@@ -272,8 +271,8 @@ class CardDeleteView(viewsets.ModelViewSet):
         product_id = request.GET['car']
         cards = CardObject.objects.filter(customer_id=user_id, id=product_id).all()
         if len(cards) == 0:
-            return Response({"status":"Not Found"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"status": "Not Found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             for card in cards:
                 card.delete()
-            return Response({"status":"deleted"})
+            return Response({"status": "deleted"})
