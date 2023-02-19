@@ -22,7 +22,7 @@ jobs:
         KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       with:
         source: "."
-        target: "/home/Api/MonandApk"
+        target: "/home/Api/Monand"
 
     - name: Command using from script
       uses: appleboy/ssh-action@master
@@ -37,7 +37,7 @@ jobs:
         script_stop: true
         script: |
           git --work-tree=/home/Api/Monand --git-dir=/home/Api/Monand/.git clean -f .
-          /home/Api/MonandApk/env/bin/pip install -r /home/Api/Monand/requirements/production.txt
-          /home/Api/Monand/env/bin/python /home/Api/Monand/manage_prod.py migrate
+          /home/Api/Monand/venv/bin/pip install -r /home/Api/Monand/requirements/production.txt
+          /home/Api/Monand/venv/bin/python /home/Api/Monand/manage_prod.py migrate
           systemctl restart monand.service
           sh /home/devops/monand_back.sh "${{ github.event.head_commit.message }}"
