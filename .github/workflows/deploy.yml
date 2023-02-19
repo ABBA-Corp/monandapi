@@ -1,0 +1,43 @@
+name: Production Django deploy Monand
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: GIT pulling from github repository
+      uses: appleboy/scp-action@master
+      env:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      with:
+        source: "."
+        target: "/home/Api/MonandApk"
+
+    - name: Command using from script
+      uses: appleboy/ssh-action@master
+      env:
+        DJANGO_SETTINGS_MODULE: "config.settings.production"
+      with:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: DJANGO_SETTINGS_MODULE
+        script_stop: true
+        script: |
+          git --work-tree=/home/Api/MonandApk --git-dir=/home/Api/MonandApk/.git clean -f .
+          /home/Api/MonandApk/env/bin/pip install -r /home/Api/MonandApk/requirements/production.txt
+          /home/Api/MonandApk/env/bin/python /home/Api/MonandApk/manage_prod.py migrate
+          systemctl restart monand.service
+          sh /home/devops/monand_back.sh "${{ github.event.head_commit.message }}"
