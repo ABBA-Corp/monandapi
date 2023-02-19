@@ -36,8 +36,8 @@ jobs:
         envs: DJANGO_SETTINGS_MODULE
         script_stop: true
         script: |
-          git --work-tree=/home/Api/MonandApk --git-dir=/home/Api/MonandApk/.git clean -f .
-          /home/Api/MonandApk/env/bin/pip install -r /home/Api/MonandApk/requirements/production.txt
-          /home/Api/MonandApk/env/bin/python /home/Api/MonandApk/manage_prod.py migrate
+          git --work-tree=/home/Api/Monand --git-dir=/home/Api/Monand/.git clean -f .
+          /home/Api/MonandApk/env/bin/pip install -r /home/Api/Monand/requirements/production.txt
+          /home/Api/Monand/env/bin/python /home/Api/Monand/manage_prod.py migrate
           systemctl restart monand.service
           sh /home/devops/monand_back.sh "${{ github.event.head_commit.message }}"
