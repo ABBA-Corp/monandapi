@@ -85,3 +85,13 @@ class CardObject(models.Model):
 class Like(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+
+
+class Location(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    longitude = models.CharField(max_length=100, null=True, blank=True)
+    latitude = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.customer.first_name} ({self.longitude}:{self.latitude})"

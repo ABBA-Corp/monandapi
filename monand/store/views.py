@@ -282,3 +282,78 @@ class SubCategoryView(generics.ListAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
     filterset_fields = ['category_id']
+
+
+class LocationView(viewsets.ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            jwt_object = JWTAuthentication()
+            validated_token = jwt_object.get_validated_token(request.headers['token'])
+            user = jwt_object.get_user(validated_token)
+            objects = self.queryset.filter(customer_id=user.id).all()
+            data = []
+            geolocator = Nominatim(user_agent="geoapiExercises")
+
+            # serializer = self.get_serializer(objects, many=True)
+
+            for object in objects:
+                Latitude = str(object.latitude)
+                Longitude = str(object.longitude)
+                location = geolocator.geocode(Latitude + "," + Longitude)
+                display_name = location.raw.get('display_name')
+                dt = {
+                    "id": object.id,
+                    "display_name": display_name,
+                    "latitude": object.latitude,
+                    "longitude": object.longitude,
+                }
+
+                data.append(dt)
+
+            return Response(data, status=status.HTTP_200_OK)
+        except:
+            data = {
+                "token": "required"
+            }
+        return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.validated_data
+            # user = MyUser.objects.get(data['customer'])
+            location = Location.objects.create(
+                customer=data['customer'],
+                longitude=data['longitude'],
+                latitude=data['latitude']
+            )
+            geolocator = Nominatim(user_agent="geoapiExercises")
+            Latitude = str(location.latitude)
+            Longitude = str(location.longitude)
+            location1 = geolocator.geocode(Latitude + "," + Longitude)
+            location.location = location1.raw.get('display_name')
+            location.save()
+            data = {
+                "id": location.id,
+                "customer": location.customer.id,
+                "location": location.location,
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+
+class ProductRecomendation(viewsets.ReadOnlyModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        id = kwargs["pk"]
+        product = Product.objects.filter(id=id).first()
+        if product:
+            products = Product.objects.filter(category__id=product.category.id).all()
+            serializer = ProductSerializer(products)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "product not found"})
