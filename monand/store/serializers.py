@@ -49,3 +49,9 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = '__all__'
+
+
+class FilialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Filial
+        fields = '__all__'

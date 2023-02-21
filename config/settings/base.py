@@ -41,12 +41,14 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     "rest_framework_simplejwt",
     "django_twilio",
+    "paymeuz",
 ]
 
 LOCAL_APPS = [
     'monand.about',
-    'monand.customer',
     'monand.store',
+    'monand.otp_auth',
+    'monand.payme',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -66,6 +68,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+AUTH_USER_MODEL = 'otp_auth.MyUser'
 
 TEMPLATES = [
     {
@@ -269,4 +272,14 @@ SPECTACULAR_SETTINGS = {
     #     "PersonSpeachTextEnum": "medtour.tours.models.PersonalSpeach.choice",
     # },
     'SCHEMA_PATH_PREFIX': '/v1/',
+}
+
+PAYME_SETTINGS = {
+    'DEBUG': False,  # True - test mode, False - production mode
+    'ID': "ID_PAYME",
+    'SECRET_KEY': "SECRET_KEY",
+    'ACCOUNTS': {
+        'KEY_1': 'order_id',
+        'KEY_2': '',
+    }
 }

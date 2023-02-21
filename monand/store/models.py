@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.db import models
-from django.contrib.auth.models import User as Customer
 from smart_selects.db_fields import GroupedForeignKey
+
+Customer = get_user_model()
+
 
 class Category(models.Model):
     name_uz = models.CharField(max_length=200, null=True, blank=True)
@@ -16,7 +19,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name_uz
-    
+
 
 class SubCategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)
@@ -49,7 +52,7 @@ class Product(models.Model):
     price = models.IntegerField(default=0)
     likes = models.IntegerField(default=0)
     top = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return self.name_uz
 
@@ -58,7 +61,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date = models.DateField(auto_now_add=True)
     summa = models.IntegerField(default=0)
-    
+
     def __str__(self):
         return f"{self.customer} {self.date}"
 
@@ -75,7 +78,7 @@ class CardObject(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     count = models.IntegerField(default=0)
-    
+
     def clear(customer_id):
         objects = CardObject.objects.filter(customer_id=customer_id).all()
         for object in objects:
@@ -95,3 +98,14 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.customer.first_name} ({self.longitude}:{self.latitude})"
+
+
+class Filial(models.Model):
+    name_uz = models.CharField(max_length=100)
+    name_ru = models.CharField(max_length=100, null=True, blank=True)
+    name_en = models.CharField(max_length=100, null=True, blank=True)
+    longitude = models.CharField(max_length=100, null=True, blank=True)
+    latitude = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.name_uz

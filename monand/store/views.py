@@ -6,7 +6,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from monand.customer.models import UserInfo
 from .paginators import CustomPagination
 from .serializers import *
 
@@ -219,49 +218,6 @@ class AddOrder(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CardsUiView(viewsets.ModelViewSet):
-    queryset = CardObject.objects.all()
-    serializer_class = CardObjectSerializer
-
-    def list(self, request, *args, **kwargs):
-        jwt_object = JWTAuthentication()
-        validated_token = jwt_object.get_validated_token(request.headers['token'])
-        user = jwt_object.get_user(validated_token)
-        user = User.objects.filter(id=user.id).first()
-        try:
-            userid = UserInfo.objects.filter(user_id=user.id).first()
-            card = CardObject.objects.filter(u_id=userid.u_id)
-            for cards in card:
-                cards.condition = 'True'
-                cards.save()
-            return Response({'status': 'Success'}, status=status.HTTP_200_OK)
-        except:
-            pass
-        return Response({'status': 'Error'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CardsUiPaymiView(viewsets.ModelViewSet):
-    queryset = CardObject.objects.all()
-    serializer_class = CardObjectSerializer
-
-    def create(self, request, *args, **kwargs):
-        result = ''
-        try:
-            result = request.data['result']
-        except:
-            pass
-        if not result == '':
-            userid = request.data['id']
-            card = CardObject.objects.filter(u_id=userid)
-            for cards in card:
-                cards.condition = True
-                cards.save()
-            return Response({'status': 'Success'}, status=status.HTTP_200_OK)
-
-        else:
-            return Response({'status': 'Error'}, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CardDeleteView(viewsets.ModelViewSet):
     queryset = CardObject.objects.all()
     serializer_class = CardObjectSerializer
@@ -357,3 +313,8 @@ class ProductRecomendation(viewsets.ReadOnlyModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"error": "product not found"})
+
+
+class FilialViewSet(viewsets.ModelViewSet):
+    queryset = Filial.objects.all()
+    serializer_class = FilialSerializer

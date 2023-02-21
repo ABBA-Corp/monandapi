@@ -6,15 +6,14 @@ from django.views import defaults as default_views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView, \
     SpectacularJSONAPIView
 
-from monand.customer import urls
 from monand.store.views import SubCategoryView
 from .api import router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
-    path('subcategories', SubCategoryView.as_view(), name='subcategories'),
-    path('auth/', include(urls)),
+    path('api/', include(router.urls)),
+    path('api/subcategories/', SubCategoryView.as_view(), name='subcategories'),
+    path('auth/', include("monand.otp_auth.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
         "api/docs/",
@@ -23,6 +22,7 @@ urlpatterns = [
     ),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='api-schema'), name='redoc'),
     path('api/schema/json/', SpectacularJSONAPIView.as_view(), name='json'),
+    path('payments/payme/', include('monand.payme.urls')),
 ]
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
