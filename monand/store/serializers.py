@@ -3,12 +3,6 @@ from rest_framework import serializers
 from .models import *
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
-
-
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -54,4 +48,12 @@ class LocationSerializer(serializers.ModelSerializer):
 class FilialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Filial
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategory_set = SubCategorySerializer(many=True)
+
+    class Meta:
+        model = Category
         fields = '__all__'
