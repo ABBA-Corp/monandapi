@@ -30,6 +30,7 @@ class ProductView(viewsets.ModelViewSet):
     filterset_fields = ["top", "category_id", "subcategory_id",]
 
 
+
 class ProductByCategory(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -237,7 +238,9 @@ class CardDeleteView(viewsets.ModelViewSet):
 class SubCategoryView(generics.ListAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
-    filterset_fields = ['category_id']
+    filterset_fields = {
+        "category_id": ["exact", "in"],
+    }
 
 
 class LocationView(viewsets.ModelViewSet):
