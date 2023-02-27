@@ -27,7 +27,13 @@ class ProductView(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['$name_uz', '$name_uz', '$name_uz']
-    filterset_fields = ["top", "category_id", "subcategory_id",]
+    filterset_fields = {
+        "category_id": ["exact"],
+        "subcategory_id": ["exact"],
+        "top": ["exact"],
+        "price": ["lte", "gte"]
+    }
+    ordering_fields = ['price', 'likes']
 
 
 
