@@ -4,6 +4,7 @@ from rest_framework import viewsets, filters, status, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from geopy.geocoders import Nominatim
 
 from .paginators import CustomPagination
 from .serializers import *
