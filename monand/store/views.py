@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import viewsets, filters, status, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -25,7 +24,7 @@ class ProductView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
     search_fields = ['$name_uz', '$name_uz', '$name_uz']
     filterset_fields = {
         "category_id": ["exact"],
@@ -34,7 +33,6 @@ class ProductView(viewsets.ModelViewSet):
         "price": ["lte", "gte"]
     }
     ordering_fields = ['price', 'likes']
-
 
 
 class ProductByCategory(viewsets.ReadOnlyModelViewSet):
